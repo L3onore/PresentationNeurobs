@@ -1,0 +1,381 @@
+include "3013065.02.MRI.EncodingVAR.v1.pcl";
+
+
+#------------------Get any info -------------#
+sub GetInfo (string sInputstr) 
+begin
+	t_info_1.set_caption (sInputstr);
+	t_info_1.redraw();
+	p_info.present ();
+	
+	system_keyboard.set_case_mode(3);
+	sInfo= system_keyboard.get_input(p_info, t_info_2);
+end;
+
+
+#---------------checking input file existence--------#
+sub CheckExistenceInputFile
+begin
+	loop 
+	until InputFile.open(sInputFileName, false)
+	begin 
+		GetInfo ("A file with this number doesn't exist! Try another number");
+		sListNr = sInfo;
+		sInputFileName = "Lists\\L" + sListNr +  ".txt"; #checks if it really is a file; goes to the directory, defined by the two backslashes
+	end;
+	
+	InputFile.close();
+end;
+
+#----------input file opening and reading the contents------#
+sub InputFileHandling (string sFilename )
+begin
+	InputFile.open(sFilename);
+	InputFile.set_delimiter('\n');
+	
+	iLines = 0;
+	loop 
+	until InputFile.end_of_file () #|| iLines == iNRLine || !InputFile.last_succeeded() #have some options of what could happen and what to do then. 
+		begin 
+		iLines = iLines + 1;
+		asInputLines[iLines] = InputFile.get_line();
+	end;
+	InputFile.close();
+end;
+
+sub InputlineSplitting
+begin
+	iLines = 1;
+	loop
+	until iLines > iNrTrials # now, we dont go up to the max anymore, which was 500, but now until the amount of lines which were found in the last subroutine
+	begin
+		asInputLines[iLines].split("\t", asColumns );#uses the tab as seperator between columns
+		
+	#----the lines following now are different from experiment to experiment ----#
+		asTargets[iLines]				= asColumns[1];
+		aiExpectedButton [iLines]  = int (asColumns[1]); #convert string to interger
+		aiTargetID [iLines] 			= int (asColumns[1]); #in the file, the 1 and 0 are strings and need to be converted to integers to be able to calculate with them
+	#----
+	iLines = iLines + 1;
+	end;
+	
+end;
+
+
+
+#----wait for a button press, a specific button press
+sub WaitForButtonPress (int iButton)
+begin 
+	int iCount = response_manager.total_response_count (iButton );
+	loop 
+	until response_manager.total_response_count (iButton ) > iCount
+	begin
+	end;
+	
+end;
+
+###-----sliderMETA------#
+sub metaslider
+begin
+	
+loop
+	int confirm = response_manager.total_response_count( 3 );
+	int left = response_manager.response_count( 4 );
+	int right = response_manager.response_count( 5 );
+	int rightup = response_manager.response_count( 7 );
+	int leftup = response_manager.response_count( 6 );
+	int x = -175;
+	int x_inc = 39;
+	int time10 = clock.time();
+	int time11 = clock.time();
+	int duration = 2500;
+	
+	metalines.present();	
+	
+	until	response_manager.response_count( 3 ) > 1 || time11-time10 > duration
+	#+ timer van 3 seconden
+	begin
+		time11 = clock.time();
+		if response_manager.total_response_count( 4 ) > left then	
+			x = x - x_inc;
+			if x < - 175 then 
+				x = -175 
+			end;
+			left = response_manager.total_response_count( 4 );
+		end;
+		if response_manager.total_response_count( 5 ) > right then
+			x = x + x_inc;
+			if x > 175 then 
+				x = 175 
+			end;
+			right = response_manager.total_response_count( 5 );
+		end;
+		metalines.set_part_x( 2,x );
+		metalines.present();
+		asSliderValueMETA[iLines] = string(x/x_inc+4); 
+	end;
+	
+end;
+
+###-----SMOOTHslider------#
+sub slider
+begin
+	#+ timer van 3 seconden
+int x = 0;
+int time1 = clock.time();
+int time2 = clock.time();
+int duration = 3000;
+
+loop  int responses = response_manager.total_response_count(); 
+bool rightward = false; 
+bool leftward = false; 
+
+
+until response_manager.response_count( 3 ) > 0  || time2-time1 > duration
+begin
+	time2 = clock.time();
+   loop until response_manager.total_response_count() > responses || time2-time1 > duration
+	begin 
+		time2 = clock.time();
+		if rightward then
+         if x <= 175 then
+            x = x + 4;
+         end;
+      elseif leftward then
+         if x >= -175 then
+            x = x - 4;
+         end;
+      end;
+lines.set_part_x( 2, x );			
+lines.present();
+			
+    end;
+    if response_manager.last_response_data().button() == 5 then 
+        rightward = true;
+        leftward = false;
+    elseif response_manager.last_response_data().button() == 7 then
+        rightward = false;
+        leftward = false;
+    elseif response_manager.last_response_data().button() == 4 then
+        leftward = true;
+        rightward = false;
+    elseif response_manager.last_response_data().button() == 6 then
+        leftward = false;
+        rightward = false;
+    end;
+    responses = response_manager.total_response_count();
+    asSliderValue[iLines] = string(x); 
+end;  	
+end;
+
+#---------Colorquest---------- # Vraag over kleur
+sub colorquest
+begin
+	int time1 = clock.time();
+	int time2 = clock.time();
+	int duration = 3000;
+
+	loop  
+	until response_manager.response_count( 14 ) > 0  ||  response_manager.response_count( 15 ) > 0 || time2-time1 > duration
+			
+	begin
+		time2 = clock.time();
+
+		p_colorquest.present();
+
+		if response_manager.response_count( 14 ) > 0 then	# blauw
+			asColorValueQuest[iLines] = string(0);		
+		elseif response_manager.response_count( 15 ) > 0 then # rood
+			asColorValueQuest[iLines] = string(1);
+		end
+
+end;  	
+end;
+
+
+#-----------Blavk----blockarray van kleuren
+
+sub blockarray
+begin
+	iArrayPosition = 1;
+	iOldShade = 0;
+	iLoopcontrol = 0;
+	loop until iLoopcontrol == 1
+	begin
+		iBlockNrRed = 0;
+		loop iLoopcounter = 1
+		until iLoopcounter > 6
+		begin
+			aiBlock[iLoopcounter] = random(0,1); 
+			iBlockNrRed = iBlockNrRed + aiBlock[iLoopcounter];
+			iLoopcounter = iLoopcounter + 1;
+		end;
+		
+		if iBlockNrRed == 3 then #|| iBlockNrRed > 16 || iBlockNrRed < 4  then # discard wrong lists: 50%, over 80%, under 20%
+			iLoopcontrol = 0;
+		else
+			iLoopcontrol = 1;
+		end;
+	end;
+	if iBlockNrRed > 3 then
+		asColorValueReal[iLines] = string(1);
+	else
+		asColorValueReal[iLines] = string(0);
+	end;
+end;
+
+
+#Getcolor
+sub getcolor
+begin
+	iLoopcontrol = 0;
+	loop until iLoopcontrol == 1
+	begin
+		iShade = random(1,5); 						#5 is array size of red shade e.g. aiRr, aiBr
+		if aiBlock[iArrayPosition] == 1 then 	# -> Red
+			iColorR = aiRr[iShade];
+			iColorG = aiRg[iShade];
+			iColorB = aiRb[iShade];
+		else 												# -> Blue
+			iColorR = aiBr[iShade]; 	
+			iColorG = aiBg[iShade];
+			iColorB = aiBb[iShade];
+		end;
+		if iShade == iOldShade then
+			iLoopcontrol = 0;
+		else
+			iLoopcontrol = 1;
+		end;
+		iOldShade = iShade;
+	end;
+	
+	
+	
+	iArrayPosition = iArrayPosition + 1;
+end;
+			
+#StimPrep
+sub StimPrep
+begin
+	
+int clockslider1 = clock.time();
+int clockslider2 = clock.time();	
+int clockslider3 = clock.time();
+int clockslider4 = clock.time();	
+int clockcolor1 = clock.time();	
+int clockcolor2 = clock.time();		
+	
+	if asInputLines[iLines] == "." then 
+		blockarray();
+		clockslider1 = clock.time();		
+		slider ();
+		clockslider2 = clock.time();
+		aiRT [iLines] = clockslider2 - clockslider1;
+		clockslider3 = clock.time();
+		metaslider ();
+		clockslider4 = clock.time();
+		aiRT2 [iLines] = clockslider4 - clockslider3;
+		t_fix.present();
+			
+	elseif asInputLines[iLines] == "," then 
+		blockarray();
+		
+	elseif asInputLines[iLines] == ";" then 
+		blockarray();
+		clockcolor1 = clock.time();	
+		colorquest();
+		clockcolor2 = clock.time();
+		aiRT3 [iLines] = clockcolor2 - clockcolor1;	
+		t_fix.present();
+				
+	else
+		getcolor();
+		t_target.set_caption (asInputLines[iLines]);
+		t_target.set_font_color (iColorR, iColorG, iColorB);
+		iLines = iLines +1;
+		t_target.redraw ();
+		
+		getcolor();
+		t_target2.set_caption (asInputLines[iLines]);
+		t_target2.set_font_color (iColorR, iColorG, iColorB);
+		iLines = iLines +1;
+		t_target2.redraw ();
+		
+		
+		getcolor();
+		t_target3.set_caption (asInputLines[iLines]);
+		t_target3.set_font_color (iColorR, iColorG, iColorB);
+		iLines = iLines +1;
+		t_target3.redraw ();
+		
+		getcolor();
+		t_target4.set_caption (asInputLines[iLines]);
+		t_target4.set_font_color (iColorR, iColorG, iColorB);
+		iLines = iLines +1;
+		t_target4.redraw ();
+		
+		getcolor();
+		t_target5.set_caption (asInputLines[iLines]);
+		t_target5.set_font_color (iColorR, iColorG, iColorB);
+		iLines = iLines +1;
+		t_target5.redraw ();
+		
+		getcolor();
+		t_target6.set_caption (asInputLines[iLines]);
+		t_target6.set_font_color (iColorR, iColorG, iColorB);
+		t_target6.redraw ();
+		
+		t_ITI.present();
+		
+		
+		
+	end;
+end;
+
+#write Header
+sub Header
+begin
+  sOutputLine = "Word" + "\t" + "Smoothslider" +  "\t" + "METAslider"  +  "\t" + "RTSmoothslider" + "\t" + "RTMETAslider" + "\t"+ "ColorQuest"  + "\t" + "ColorCorrectAnswer" + "\t" + "ColorRT"+ "\n";
+  OutputFile.print (sOutputLine);
+end;
+
+
+#write output word
+sub WriteOutputWord
+begin
+	sOutputLine = asInputLines[iLines] + "\n";
+	OutputFile.print (sOutputLine);
+end;
+
+#write output dot
+sub WriteOutputDot
+begin
+	sOutputLine = asInputLines[iLines] + "\t" + asSliderValue[iLines] + "\t" + asSliderValueMETA[iLines] 
+		 + "\t"  + string(aiRT[iLines]) + "\t"  + string(aiRT2[iLines])+ "\t" + asColorValueQuest[iLines] 
+		 + "\t"  + asColorValueReal[iLines] + "\t"  + string(aiRT3[iLines]) + "\n";
+	OutputFile.print (sOutputLine);
+end;
+
+
+
+
+
+
+
+
+#Run trial
+sub RunTrial 
+begin
+	StimPrep();
+	if asInputLines[iLines] == "." || asInputLines[iLines] == ";" then
+		WriteOutputDot();
+
+	else
+		t_trial.present();
+		WriteOutputWord();
+	end;
+end;
+
+
+
+
