@@ -1,0 +1,92 @@
+string sInfo;
+string sSubjID;
+string sSubjAge;
+string sListNr; #store the number of the list
+string sInputFileName;
+string sOutputFileName;
+string sHeader;
+string sOutputLine;
+
+input_file InputFile = new input_file;
+output_file OutputFile = new output_file;
+
+int iFixationStart;
+int iTargetStart;
+int iISIStart;
+int iButtonPressTime;
+int iRT; #this is the difference between the target start and the button press
+int iPressedButton;
+
+int iLines;
+int iNrTrials;
+int iCountLeftButton;
+int iCountRightButton;
+
+
+
+# --input file related variables-- #
+
+int iNRLine    = 800; #max number of lines possible in the array, is not extremely high or small, better overestimate. 
+int iNRColumns = 	20;
+array <string> asInputLines[iNRLine];
+array <string> asSliderValue[iNRLine];
+array <string> asSliderValueMETA[iNRLine];
+array <string> asColorValueQuest[iNRLine];
+array <string> asColorValueReal[iNRLine];
+array <string> asColumns [iNRColumns];
+array <string> asTargets [iNRLine];
+array <int> aiExpectedButton [iNRLine];
+array <int> aiTargetID [iNRLine];
+array <int> aiRT [iNRLine];
+array <int> aiRT2 [iNRLine];
+array <int> aiRT3 [iNRLine];
+
+
+
+#-----buttons used-----#
+int iLeftMouseButton 	= 1;
+int iRightMouseButton 	= 2;
+int iEnter 					= 3;
+int iLeft					= 4;
+int iRight					= 5;
+int iLeftup					= 6;
+int iRightup				= 7;
+
+#------Experiment settings -------
+
+int iSecurity 					= 10; #10 ms
+int iFixationDuration 		= 700 - iSecurity; # want to show something for 700, has to do something with refresh rate
+int iBlackScreenDuration 	= 100 - iSecurity;
+int iISIDuration				= 1000- iSecurity;
+
+#-----Colors------
+int iColorR;						
+int iColorG;
+int iColorB;
+int iCounterRed = 0;
+int iCounterBlue = 0;
+int iLoopcontrol;
+int iLoopcounter;
+int iBlockNrRed;
+int iArrayPosition;
+int iShade;
+int iOldShade = 0;
+
+
+
+array <int> aiBlock [20];
+
+
+array <int> aiRr [5] 	= {250, 250, 250, 250, 250}; #Red shade, the red value
+array <int> aiRg [5]		= { 0, 0, 0, 0, 0 }			; #Red shade, the green value
+array <int> aiRb [5]		= { 0, 50, 100, 150, 200}	; #Red shade, the blue value
+array <int> aiBr [5] 	= { 0, 50, 100, 150, 200}	; #Blue shade, the red value
+array <int> aiBg [5] 	= { 0, 0, 0, 0, 0 }			; #Blue shade, the green value
+array <int> aiBb [5] 	= {250, 250, 250, 250, 250}; #Blue shade, the blue value
+
+
+
+
+
+
+
