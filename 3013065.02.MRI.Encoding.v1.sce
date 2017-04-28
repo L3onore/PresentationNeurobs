@@ -2,7 +2,9 @@ scenario = "False memory - encoding session"; # name of this scenario file
 
 pcl_file = "3013065.02.MRI.Encoding.v1.pcl"; # direct to the correct pcl file
 
-
+blablablablabalblablablalbalbalblablablablabalblablablalbalbalblablablablabalblablablalbalbalblablablablabalblablablalbalbalblablablablabalblablablalbalbalblablablablabalblablablalbalbalblablablablabalblablablalbalbal
+blablablablabalblablablalbalbalblablablablabalblablablalbalbalblablablablabalblablablalbalbalblablablablabalblablablalbalbal
+blablablablabalblablablalbalbalblablablablabalblablablalbalbalblablablablabalblablablalbalbal
 #default_font = "Comic Sans MS"; # can choose all types of fonts you want
 default_font = "Calibri";
 default_font_size = 30;
