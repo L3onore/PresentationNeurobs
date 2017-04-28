@@ -1,0 +1,45 @@
+include "3013065.02.MRI.Encoding.SUBS.v1.pcl";
+
+#-----# inputlist
+GetInfo ("Give the input list number!");
+sListNr = sInfo;
+sInputFileName = "Lists\\L" + sListNr +  ".txt"; #backslash is escape carachter for a new line or tab, use two to go to the directory
+
+#-----# instructions
+p_instruction.present();
+WaitForButtonPress( iEnter );
+p_instruction4.present();
+WaitForButtonPress( iEnter );
+p_instruction2.present();
+WaitForButtonPress( iEnter );
+p_instruction3.present();
+WaitForButtonPress( iEnter );
+
+#-----#Input file
+InputFileHandling (sInputFileName);
+iNrTrials = iLines; # here we store how many lines are used. 
+
+#-----#Open output file
+sOutputFileName = "M:/1. Documents/PhD 2016-2020/PresentationNeurobs/3013065.02.MRI.presentation.v1/Encoding/Encoding-logfile/" + "L" + sListNr +  "-log.txt";
+#sOutputFileName = "D:/Users/leobov/3013065.03.BEH.presentation.v1/Encoding/Encoding-logfile/" + "L" + sListNr + "-3013065.03.BEH.Encoding" +  "-log.txt";
+OutputFile.open_append (sOutputFileName);
+Header ();
+
+
+#-----# Run through the trials by running the subroutine RunTrial
+iLines = 1;
+loop
+until iLines > iNrTrials
+begin
+	RunTrial ();
+	iLines = iLines + 1;
+end;
+
+#-----# end screen
+p_goodbye.present();
+WaitForButtonPress( iEnter );
+
+#-----#Close Output file
+
+OutputFile.close();
+
